@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Système de Tickets - CNAM</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #0056b3;
+            text-align: center;
+        }
+        select, button {
+            padding: 12px;
+            font-size: 16px;
+            width: 100%;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+        button {
+            background-color: #0056b3;
+            color: white;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background-color: #003d82;
+        }
+        .ticket-result {
+            margin-top: 20px;
+            padding: 15px;
+            background: #e9f5ff;
+            border-radius: 5px;
+            display: none;
+        }
+        .error {
+            color: #d32f2f;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Système de Tickets CNAM</h1>
+        
+        <select id="serviceSelect">
+            <option value="Légalisation">Légalisation</option>
+            <option value="Extrait de naissance">Extrait de naissance</option>
+            <option value="Copie conforme">Copie conforme</option>
+        </select>
+        
+        <button onclick="createTicket()">Générer Ticket</button>
+        
+        <div id="ticketResult" class="ticket-result"></div>
+    </div>
+
+    <script>
+        async function createTicket() {
+            const service = document.getElementById("serviceSelect").value;
+            const resultDiv = document.getElementById("ticketResult");
+            
+            resultDiv.style.display = "block";
+            resultDiv.innerHTML = "<p>Génération du ticket en cours...</p>";
+
+            try {
+                const response = await fetch("/api/tickets", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({ service })
+                });
+
+                if (!response.ok) {
+                    throw new Error("Erreur lors de la création du ticket");
+                }
+
+                const ticket = await response.json();
+                
+                resultDiv.innerHTML = `
+                    <h3>Votre ticket a été créé</h3>
+                    <p><strong>Numéro :</strong> ${ticket.id}</p>
+                    <p><strong>Service :</strong> ${ticket.service}</p>
+                    <p><strong>Statut :</strong> ${ticket.is_processed ? "Traité" : "En attente"}</p>
+                `;
+            } catch (error) {
+                resultDiv.innerHTML = `<p class="error">Erreur: ${error.message}</p>`;
+                console.error(error);
+            }
+        }
+    </script>
+</body>
+</html>
