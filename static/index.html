@@ -67,21 +67,15 @@
     </div>
 
     <script>
-        async function createTicket() {
-            const service = document.getElementById("serviceSelect").value;
-            const resultDiv = document.getElementById("ticketResult");
-            
-            resultDiv.style.display = "block";
-            resultDiv.innerHTML = "<p>Génération du ticket en cours...</p>";
-
-            try {
-                const response = await fetch("/api/tickets", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({ service })
-                });
+       async function createTicket() {
+    const service = document.getElementById("serviceSelect").value;
+    
+    try {
+        const response = await fetch("/api/tickets", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ service: service, is_processed: false }) // Format exact attendu
+        });
 
                 if (!response.ok) {
                     throw new Error("Erreur lors de la création du ticket");

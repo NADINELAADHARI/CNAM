@@ -29,18 +29,17 @@ class Ticket(BaseModel):
 tickets_db = []
 
 # Endpoints API
-@app.post("/api/tickets", response_model=Ticket)
-async def create_ticket(service: str):
-    try:
-        ticket = Ticket(
-            id=str(uuid4()),
-            service=service,
-            is_processed=False
-        )
-        tickets_db.append(ticket.dict())
-        return ticket
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+@app.post("/api/tickets")
+async def create_ticket(request: Request):
+    data = await request.json()
+    service = data.get("service")
+    
+    if not service:
+        raise HTTPException(status_code=400, detail="Service manquant")
+    
+    ticket = Ticket(id=str(uuid4()), service=service)
+    tickets_db.append(ticket.dict())
+    return ticket
 
 @app.get("/api/tickets", response_model=List[Ticket])
 async def get_tickets():
